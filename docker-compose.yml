@@ -13,7 +13,6 @@ services:
       JWT_EXPIRES_IN: "7d"
       PORT: 5000
       NODE_ENV: production
-      PRISMA_QUERY_ENGINE_LIBRARY: /app/node_modules/.prisma/client/libquery_engine-debian-openssl-3.0.x.so.node
     volumes:
       - ./data:/app/data
     restart: unless-stopped
