@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String
+  name      String
+  role      String   @default("cashier") // admin, cashier
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  sales     Sale[]
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  description String?
+  products    Product[]
+  createdAt   DateTime  @default(now())
+}
+
+model Supplier {
+  id        String    @id @default(cuid())
+  name      String
+  contact   String?
+  email     String?
+  phone     String?
+  address   String?
+  products  Product[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Product {
+  id             String          @id @default(cuid())
+  name           String
+  description    String?
+  sku            String          @unique
+  barcode        String?         @unique
+  categoryId     String?
+  category       Category?       @relation(fields: [categoryId], references: [id])
+  supplierId     String?
+  supplier       Supplier?       @relation(fields: [supplierId], references: [id])
+  price          Float
+  costPrice      Float           @default(0)
+  stock          Int             @default(0)
+  minStock       Int             @default(5)
+  warrantyMonths Int             @default(0)
+  imageUrl       String?
+  isActive       Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  saleItems      SaleItem[]
+  stockMovements StockMovement[]
+  warranties     Warranty[]
+}
+
+model Customer {
+  id         String     @id @default(cuid())
+  name       String
+  email      String?
+  phone      String?
+  address    String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  sales      Sale[]
+  warranties Warranty[]
+}
+
+model Sale {
+  id            String     @id @default(cuid())
+  invoiceNo     String     @unique
+  customerId    String?
+  customer      Customer?  @relation(fields: [customerId], references: [id])
+  userId        String
+  user          User       @relation(fields: [userId], references: [id])
+  subtotal      Float
+  discount      Float      @default(0)
+  tax           Float      @default(0)
+  total         Float
+  paymentMethod String     @default("cash") // cash, card, upi, bank_transfer
+  paymentStatus String     @default("paid") // paid, pending, partial
+  notes         String?
+  createdAt     DateTime   @default(now())
+  items         SaleItem[]
+}
+
+model SaleItem {
+  id             String    @id @default(cuid())
+  saleId         String
+  sale           Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId      String
+  product        Product   @relation(fields: [productId], references: [id])
+  quantity       Int
+  unitPrice      Float
+  discount       Float     @default(0)
+  total          Float
+  warrantyMonths Int       @default(0)
+  serialNumber   String?
+  warranty       Warranty?
+}
+
+model Warranty {
+  id           String    @id @default(cuid())
+  saleItemId   String    @unique
+  saleItem     SaleItem  @relation(fields: [saleItemId], references: [id], onDelete: Cascade)
+  productId    String
+  product      Product   @relation(fields: [productId], references: [id])
+  customerId   String?
+  customer     Customer? @relation(fields: [customerId], references: [id])
+  serialNumber String?
+  invoiceNo    String
+  startDate    DateTime
+  endDate      DateTime
+  status       String    @default("active") // active, expired, claimed, void
+  notes        String?
+  claimedAt    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model StockMovement {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id])
+  type      String   // in, out, adjustment
+  quantity  Int
+  reference String?  // invoice no, purchase order etc
+  notes     String?
+  createdAt DateTime @default(now())
+}
