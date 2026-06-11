@@ -1,9 +1,9 @@
-FROM node:20-alpine AS builder
+FROM node:20 AS builder
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install
+RUN NODE_TLS_REJECT_UNAUTHORIZED=0 npm install --legacy-peer-deps
 
 COPY . .
 RUN npm run build
