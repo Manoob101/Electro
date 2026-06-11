@@ -9,6 +9,8 @@ COPY . .
 
 RUN NODE_TLS_REJECT_UNAUTHORIZED=0 npx prisma generate
 
+RUN chmod +x docker-entrypoint.sh
+
 EXPOSE 5000
 
-CMD ["sh", "-c", "mkdir -p /app/data && npx prisma db push --accept-data-loss && node prisma/seed.js && node src/index.js"]
+CMD ["./docker-entrypoint.sh"]
