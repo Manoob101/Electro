@@ -1,5 +1,6 @@
 generator client {
-  provider = "prisma-client-js"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {
@@ -12,7 +13,7 @@ model User {
   email     String   @unique
   password  String
   name      String
-  role      String   @default("cashier") // admin, cashier
+  role      String   @default("cashier")
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -20,53 +21,48 @@ model User {
 }
 
 model Category {
-  id          String    @id @default(cuid())
-  name        String    @unique
-  description String?
-  products    Product[]
-  createdAt   DateTime  @default(now())
+  id        String    @id @default(cuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  products  Product[]
 }
 
 model Supplier {
   id        String    @id @default(cuid())
   name      String
-  contact   String?
   email     String?
   phone     String?
   address   String?
-  products  Product[]
   createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  products  Product[]
 }
 
 model Product {
   id             String          @id @default(cuid())
   name           String
-  description    String?
   sku            String          @unique
   barcode        String?         @unique
-  categoryId     String?
-  category       Category?       @relation(fields: [categoryId], references: [id])
-  supplierId     String?
-  supplier       Supplier?       @relation(fields: [supplierId], references: [id])
+  description    String?
   price          Float
   costPrice      Float           @default(0)
   stock          Int             @default(0)
   minStock       Int             @default(5)
   warrantyMonths Int             @default(0)
-  imageUrl       String?
-  isActive       Boolean         @default(true)
+  categoryId     String?
+  supplierId     String?
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
+  category       Category?       @relation(fields: [categoryId], references: [id])
+  supplier       Supplier?       @relation(fields: [supplierId], references: [id])
   saleItems      SaleItem[]
-  stockMovements StockMovement[]
   warranties     Warranty[]
+  stockMovements StockMovement[]
 }
 
 model Customer {
   id         String     @id @default(cuid())
   name       String
-  email      String?
+  email      String?    @unique
   phone      String?
   address    String?
   createdAt  DateTime   @default(now())
@@ -79,61 +75,58 @@ model Sale {
   id            String     @id @default(cuid())
   invoiceNo     String     @unique
   customerId    String?
-  customer      Customer?  @relation(fields: [customerId], references: [id])
   userId        String
-  user          User       @relation(fields: [userId], references: [id])
   subtotal      Float
+  taxRate       Float      @default(0)
+  taxAmount     Float      @default(0)
   discount      Float      @default(0)
-  tax           Float      @default(0)
   total         Float
-  paymentMethod String     @default("cash") // cash, card, upi, bank_transfer
-  paymentStatus String     @default("paid") // paid, pending, partial
+  paymentMethod String     @default("cash")
+  paymentStatus String     @default("paid")
   notes         String?
   createdAt     DateTime   @default(now())
+  customer      Customer?  @relation(fields: [customerId], references: [id])
+  user          User       @relation(fields: [userId], references: [id])
   items         SaleItem[]
+  warranties    Warranty[]
 }
 
 model SaleItem {
-  id             String    @id @default(cuid())
-  saleId         String
-  sale           Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  productId      String
-  product        Product   @relation(fields: [productId], references: [id])
-  quantity       Int
-  unitPrice      Float
-  discount       Float     @default(0)
-  total          Float
-  warrantyMonths Int       @default(0)
-  serialNumber   String?
-  warranty       Warranty?
+  id           String   @id @default(cuid())
+  saleId       String
+  productId    String
+  quantity     Int
+  price        Float
+  total        Float
+  serialNumber String?
+  sale         Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product      Product  @relation(fields: [productId], references: [id])
 }
 
 model Warranty {
   id           String    @id @default(cuid())
-  saleItemId   String    @unique
-  saleItem     SaleItem  @relation(fields: [saleItemId], references: [id], onDelete: Cascade)
   productId    String
-  product      Product   @relation(fields: [productId], references: [id])
   customerId   String?
-  customer     Customer? @relation(fields: [customerId], references: [id])
-  serialNumber String?
+  saleId       String
   invoiceNo    String
+  serialNumber String?
   startDate    DateTime
   endDate      DateTime
-  status       String    @default("active") // active, expired, claimed, void
+  status       String    @default("active")
   notes        String?
   claimedAt    DateTime?
   createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  product      Product   @relation(fields: [productId], references: [id])
+  customer     Customer? @relation(fields: [customerId], references: [id])
+  sale         Sale      @relation(fields: [saleId], references: [id])
 }
 
 model StockMovement {
   id        String   @id @default(cuid())
   productId String
-  product   Product  @relation(fields: [productId], references: [id])
-  type      String   // in, out, adjustment
+  type      String
   quantity  Int
-  reference String?  // invoice no, purchase order etc
-  notes     String?
+  reason    String?
   createdAt DateTime @default(now())
+  product   Product  @relation(fields: [productId], references: [id])
 }

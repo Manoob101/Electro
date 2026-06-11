@@ -1,14 +1,14 @@
-FROM node:20-alpine
+FROM node:20
 
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm install --production
+RUN NODE_TLS_REJECT_UNAUTHORIZED=0 npm install --production --legacy-peer-deps
 
 COPY . .
 
-RUN npx prisma generate
+RUN NODE_TLS_REJECT_UNAUTHORIZED=0 npx prisma generate
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node prisma/seed.js && node src/index.js"]
+CMD ["sh", "-c", "mkdir -p /app/data && npx prisma migrate deploy && node prisma/seed.js && node src/index.js"]
