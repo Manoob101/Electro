@@ -45,7 +45,7 @@ export default function BarcodeGenerator({ value, productName, price, showPrint 
             <div class="shop">${shopName}</div>
             <div class="name">${productName || ''}</div>
             ${svgContent}
-            ${price !== undefined ? `<div class="price">₹${Number(price).toFixed(2)}</div>` : ''}
+            ${price !== undefined ? `<div class="price">LKR ${Number(price).toFixed(2)}</div>` : ''}
           </div>
           <script>window.onload = () => { window.print(); window.close(); }<\/script>
         </body>

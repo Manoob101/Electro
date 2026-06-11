@@ -47,6 +47,7 @@ model Product {
   stock          Int             @default(0)
   minStock       Int             @default(5)
   warrantyMonths Int             @default(0)
+  isActive       Boolean         @default(true)
   categoryId     String?
   supplierId     String?
   createdAt      DateTime        @default(now())
@@ -76,9 +77,8 @@ model Sale {
   customerId    String?
   userId        String
   subtotal      Float
-  taxRate       Float      @default(0)
-  taxAmount     Float      @default(0)
   discount      Float      @default(0)
+  taxAmount     Float      @default(0)
   total         Float
   paymentMethod String     @default("cash")
   paymentStatus String     @default("paid")
@@ -91,33 +91,38 @@ model Sale {
 }
 
 model SaleItem {
-  id           String   @id @default(cuid())
-  saleId       String
-  productId    String
-  quantity     Int
-  price        Float
-  total        Float
-  serialNumber String?
-  sale         Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  product      Product  @relation(fields: [productId], references: [id])
+  id             String    @id @default(cuid())
+  saleId         String
+  productId      String
+  quantity       Int
+  unitPrice      Float
+  discount       Float     @default(0)
+  total          Float
+  warrantyMonths Int       @default(0)
+  serialNumber   String?
+  sale           Sale      @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product        Product   @relation(fields: [productId], references: [id])
+  warranty       Warranty?
 }
 
 model Warranty {
-  id           String    @id @default(cuid())
-  productId    String
-  customerId   String?
-  saleId       String
-  invoiceNo    String
-  serialNumber String?
-  startDate    DateTime
-  endDate      DateTime
-  status       String    @default("active")
-  notes        String?
-  claimedAt    DateTime?
-  createdAt    DateTime  @default(now())
-  product      Product   @relation(fields: [productId], references: [id])
-  customer     Customer? @relation(fields: [customerId], references: [id])
-  sale         Sale      @relation(fields: [saleId], references: [id])
+  id             String    @id @default(cuid())
+  saleItemId     String?   @unique
+  productId      String
+  customerId     String?
+  saleId         String
+  invoiceNo      String
+  serialNumber   String?
+  startDate      DateTime
+  endDate        DateTime
+  status         String    @default("active")
+  notes          String?
+  claimedAt      DateTime?
+  createdAt      DateTime  @default(now())
+  saleItem       SaleItem? @relation(fields: [saleItemId], references: [id])
+  product        Product   @relation(fields: [productId], references: [id])
+  customer       Customer? @relation(fields: [customerId], references: [id])
+  sale           Sale      @relation(fields: [saleId], references: [id])
 }
 
 model StockMovement {

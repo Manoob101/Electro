@@ -1,6 +1,6 @@
 # ElectroPOS
 
-An open-source cloud-based Point of Sale system built for electronics shops. Manage products, sales, warranties, inventory, and customers from any browser.
+An open-source Point of Sale system built for electronics shops in Sri Lanka. Manage products, sales, warranties, inventory, and customers from any browser — including touch-screen POS terminals.
 
 ![License](https://img.shields.io/badge/license-MIT-blue) ![Node](https://img.shields.io/badge/node-%3E%3D18-green) ![React](https://img.shields.io/badge/react-18-blue)
 
@@ -8,15 +8,17 @@ An open-source cloud-based Point of Sale system built for electronics shops. Man
 
 ## Features
 
-- **POS / Checkout** — Search products, scan barcodes via webcam, manage cart, accept Cash / Card / UPI / Bank Transfer, print receipts
+- **Touch-Optimised POS** — Full-screen checkout designed for tablet/touchscreen registers. Category-tab product browser, large tap targets, always-visible on-screen numpad for cash/discount entry, instant tap-to-add product cards
+- **Customer Management in POS** — Search existing customers or create a new one (name, phone, email, address) directly from the checkout screen without leaving the sale
+- **Bill Printing** — Thermal printer-friendly 80 mm receipt with itemised products, warranty details, discount, invoice number, and change amount. Prints via the browser's native print dialog
 - **Barcode Support** — Webcam barcode scanner, EAN-13 barcode generation, printable barcode labels
-- **Warranty Management** — Auto-tracks warranty per item sold, search by serial number or invoice, process claims
-- **Bill Printing** — Thermal printer-friendly 80 mm receipt with warranty details, invoice number, and GST number
+- **Warranty Management** — Auto-tracks warranty per item sold; search by serial number or invoice; process claims
 - **Product Management** — Full CRUD, categories, suppliers, low-stock alerts
 - **Inventory** — Stock adjustments (add / remove / set), full movement audit trail
 - **Customer CRM** — Purchase history and active warranties per customer
-- **Reports** — Daily/monthly sales charts, payment method breakdown, CSV export
-- **User Management** — Admin and Cashier roles, per-user access control
+- **Reports** — Daily/monthly sales charts, payment method breakdown, top products
+- **User Management** — Admin and Cashier roles with per-user access control
+- **Currency** — Sri Lankan Rupee (LKR) throughout
 
 ---
 
@@ -36,20 +38,29 @@ An open-source cloud-based Point of Sale system built for electronics shops. Man
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 18 or higher
-- npm 9 or higher
-
-### 1. Clone the repository
+### Option A — Docker (recommended)
 
 ```bash
-git clone https://github.com/manoob101/electro.git
-cd electro
+git clone https://github.com/Manoob101/Electro.git
+cd Electro
+docker compose up --build
 ```
 
-### 2. Set up the backend
+- Frontend → http://localhost:3000
+- Backend API → http://localhost:5000
 
+The container automatically creates the database schema and seeds demo data on first run.
+
+### Option B — Local development
+
+**Prerequisites:** Node.js 18+, npm 9+
+
+```bash
+git clone https://github.com/Manoob101/Electro.git
+cd Electro
+```
+
+**Backend:**
 ```bash
 cd backend
 npm install
@@ -57,19 +68,16 @@ npm run setup        # generates Prisma client, runs migrations, seeds demo data
 npm run dev          # starts API server on http://localhost:5000
 ```
 
-### 3. Set up the frontend
-
-Open a second terminal:
-
+**Frontend** (new terminal):
 ```bash
 cd frontend
 npm install
-npm run dev          # starts dev server on http://localhost:3000
+npm run dev          # starts dev server on http://localhost:5173
 ```
 
-Open **http://localhost:3000** in your browser.
+---
 
-### Demo credentials
+## Demo Credentials
 
 | Role | Email | Password |
 |---|---|---|
@@ -78,28 +86,42 @@ Open **http://localhost:3000** in your browser.
 
 ---
 
-## Docker (recommended for production)
+## POS / Checkout
 
-```bash
-docker-compose up --build
-```
+The checkout page is built for touchscreen use:
 
-- Frontend → http://localhost:3000
-- Backend API → http://localhost:5000
+- **Left panel** — Product browser with category filter tabs and search. Tap any card to add to cart instantly.
+- **Right panel** — Live cart with `+` / `−` quantity controls, totals, and a permanently visible numpad.
+- **Numpad** — Switch between *Cash Received* and *Discount* modes. Quick-amount buttons (500 / 1K / 2K / 5K) for fast cash entry. Live change/short display.
+- **Payment methods** — Cash, Card, Bank Transfer, QR/UPI.
+- **Customer** — Tap the customer row to open a modal: search existing customers by name/phone/email, or fill in a full new customer form (name, phone, email, address) without leaving the sale.
+- **Bill printing** — After completing a sale, tap *Print Bill* to send an 80 mm receipt to the printer.
 
-The container runs migrations and seeds the database automatically on first start.
+---
+
+## Bill Printing
+
+Receipts are printed via the browser's native print dialog.
+
+**Setup for thermal printers:**
+1. Set paper size to **80 mm × auto** (or "Receipt" if your printer driver supports it)
+2. Set margins to **None**
+3. Disable headers and footers
+
+The receipt includes: shop name, invoice number, date/time, cashier name, customer name, itemised product list with quantities and prices, discount, total, payment method, change amount, and warranty details for eligible items.
 
 ---
 
 ## Environment Variables
 
-Copy `backend/.env.example` to `backend/.env` and edit as needed:
+Create `backend/.env` (or pass via Docker Compose environment):
 
 ```env
-DATABASE_URL="file:./dev.db"        # SQLite path (or a postgres:// URL)
-JWT_SECRET="change-this-secret"     # Use a long random string in production
+DATABASE_URL="file:/app/data/dev.db"   # SQLite path (or a postgres:// URL)
+JWT_SECRET="change-this-in-production" # Long random string in production
 JWT_EXPIRES_IN="7d"
 PORT=5000
+NODE_ENV=production
 ```
 
 To use PostgreSQL instead of SQLite, change the `provider` in `backend/prisma/schema.prisma` to `postgresql` and update `DATABASE_URL`.
@@ -109,36 +131,42 @@ To use PostgreSQL instead of SQLite, change the `provider` in `backend/prisma/sc
 ## Project Structure
 
 ```
-electro/
+Electro/
+├── docker-compose.yml
+├── data/                          # SQLite database volume (persisted)
 ├── backend/
+│   ├── Dockerfile
+│   ├── docker-entrypoint.sh       # First-run DB init + seed
 │   ├── prisma/
-│   │   ├── schema.prisma       # Database schema
-│   │   └── seed.js             # Demo data
+│   │   ├── schema.prisma          # Database schema
+│   │   └── seed.js                # Demo data
 │   └── src/
 │       ├── middleware/
-│       │   └── auth.js         # JWT verification
+│       │   └── auth.js            # JWT verification
 │       ├── routes/
 │       │   ├── auth.js
 │       │   ├── products.js
 │       │   ├── categories.js
 │       │   ├── suppliers.js
 │       │   ├── customers.js
-│       │   ├── sales.js        # Checkout + warranty creation
+│       │   ├── sales.js           # Checkout, stock decrement, warranty creation
 │       │   ├── warranties.js
 │       │   ├── reports.js
 │       │   └── users.js
 │       └── index.js
 └── frontend/
+    ├── Dockerfile
+    ├── nginx.conf
     └── src/
         ├── components/
         │   ├── Layout.jsx
-        │   ├── BarcodeScanner.jsx   # Webcam scanner
-        │   ├── BarcodeGenerator.jsx # Label printer
-        │   └── ReceiptPrinter.jsx   # 80mm receipt
+        │   ├── BarcodeScanner.jsx  # Webcam scanner
+        │   ├── BarcodeGenerator.jsx
+        │   └── ReceiptPrinter.jsx  # 80 mm thermal receipt
         ├── pages/
         │   ├── Login.jsx
         │   ├── Dashboard.jsx
-        │   ├── POS.jsx             # Main checkout page
+        │   ├── POS.jsx             # Touch-optimised checkout
         │   ├── Products.jsx
         │   ├── Inventory.jsx
         │   ├── Customers.jsx
@@ -153,36 +181,30 @@ electro/
 
 ## API Overview
 
-All endpoints are prefixed with `/api` and require a `Bearer` token (except `/auth/login`).
+All endpoints require a `Bearer <token>` header (except `/api/auth/login`).
 
 | Method | Endpoint | Description |
 |---|---|---|
-| POST | `/auth/login` | Login and receive JWT |
-| GET | `/auth/me` | Current user |
-| GET | `/products` | List products (`?search=`, `?categoryId=`, `?lowStock=true`) |
-| GET | `/products/barcode/:barcode` | Barcode lookup |
-| POST | `/products` | Create product (admin) |
-| PUT | `/products/:id` | Update product (admin) |
-| POST | `/products/:id/adjust-stock` | Adjust stock (admin) |
-| GET | `/sales` | List sales with filters |
-| POST | `/sales` | Create sale / checkout |
-| POST | `/sales/:id/refund` | Refund a sale |
-| GET | `/warranties` | List warranties |
-| POST | `/warranties/check` | Check by serial or invoice |
-| PUT | `/warranties/:id/claim` | Process a warranty claim |
-| GET | `/reports/dashboard` | Dashboard stats |
-| GET | `/reports/sales-chart` | Daily sales for last N days |
-| GET | `/categories` | List / create / update categories |
-| GET | `/customers` | List / create / update customers |
-| GET | `/users` | User management (admin) |
-
----
-
-## Receipt & Barcode Printing
-
-**Receipts** are printed via the browser's native print dialog. The receipt component is styled for 80 mm thermal printers. In your browser print settings, set paper size to 80 mm × auto and disable headers/footers.
-
-**Barcode labels** open in a new window and auto-print. Each label shows the barcode (CODE128), product name, and price.
+| POST | `/api/auth/login` | Login, returns JWT |
+| GET | `/api/auth/me` | Current user info |
+| GET | `/api/products` | List products (`?search=`, `?categoryId=`, `?lowStock=true`) |
+| GET | `/api/products/barcode/:barcode` | Lookup by barcode |
+| POST | `/api/products` | Create product (admin) |
+| PUT | `/api/products/:id` | Update product (admin) |
+| POST | `/api/products/:id/adjust-stock` | Manual stock adjustment (admin) |
+| GET | `/api/categories` | List categories |
+| GET | `/api/customers` | List / search customers |
+| POST | `/api/customers` | Create customer |
+| PUT | `/api/customers/:id` | Update customer |
+| GET | `/api/sales` | List sales with filters |
+| POST | `/api/sales` | Create sale (checkout) |
+| POST | `/api/sales/:id/refund` | Refund a sale |
+| GET | `/api/warranties` | List warranties |
+| POST | `/api/warranties/check` | Check by serial number or invoice |
+| PUT | `/api/warranties/:id/claim` | Process warranty claim |
+| GET | `/api/reports/dashboard` | Dashboard stats |
+| GET | `/api/reports/sales-chart` | Daily sales for last N days |
+| GET | `/api/users` | User management (admin) |
 
 ---
 
@@ -191,7 +213,19 @@ All endpoints are prefixed with `/api` and require a `Bearer` token (except `/au
 1. When a sale is completed, a warranty record is automatically created for each item whose `warrantyMonths > 0`.
 2. The warranty is linked to the sale item, product, and customer (if provided).
 3. From the **Warranties** page, staff can search by serial number or invoice number, view expiry dates, and process claims.
-4. The **Check Warranty** button lets you instantly look up warranty status — useful for walk-in customers.
+
+---
+
+## Database Schema (key models)
+
+```
+Product     — name, sku, barcode, price, costPrice, stock, minStock, warrantyMonths, isActive
+Sale        — invoiceNo, subtotal, discount, taxAmount, total, paymentMethod, paymentStatus
+SaleItem    — unitPrice, discount, quantity, total, warrantyMonths, serialNumber
+Warranty    — startDate, endDate, status, serialNumber (linked to sale, product, customer)
+Customer    — name, phone, email, address
+StockMovement — type (in/out/adjust), quantity, reason
+```
 
 ---
 

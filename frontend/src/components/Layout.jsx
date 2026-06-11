@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingCart, Package, Warehouse, Users,
   Shield, BarChart2, Settings, Menu, X, LogOut, Zap, ChevronRight
@@ -20,6 +20,8 @@ export default function Layout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { user, logout, isAdmin } = useAuth();
   const shopName = localStorage.getItem('shopName') || 'ElectroPOS';
+  const { pathname } = useLocation();
+  const isPOS = pathname === '/pos';
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">
@@ -107,7 +109,7 @@ export default function Layout() {
           </span>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-4 lg:p-6">
+        <main className={`flex-1 min-h-0 ${isPOS ? 'overflow-hidden' : 'overflow-y-auto p-4 lg:p-6'}`}>
           <Outlet />
         </main>
       </div>

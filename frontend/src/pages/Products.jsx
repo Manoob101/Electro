@@ -95,7 +95,7 @@ export default function Products() {
     } catch { toast.error('Delete failed'); }
   };
 
-  const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
+  const fmt = (n) => `LKR ${Number(n || 0).toFixed(2)}`;
 
   return (
     <div className="space-y-4">
@@ -236,11 +236,11 @@ export default function Products() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Selling Price (₹) *</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Selling Price (LKR) *</label>
                 <input type="number" value={form.price} onChange={(e) => setForm((f) => ({ ...f, price: e.target.value }))} className="input-field" min="0" step="0.01" required />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Cost Price (₹)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Cost Price (LKR)</label>
                 <input type="number" value={form.costPrice} onChange={(e) => setForm((f) => ({ ...f, costPrice: e.target.value }))} className="input-field" min="0" step="0.01" />
               </div>
               {!editId && (

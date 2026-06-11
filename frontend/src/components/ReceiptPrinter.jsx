@@ -11,7 +11,7 @@ const ReceiptPrinter = forwardRef(({ sale }, ref) => {
 
   if (!sale) return null;
 
-  const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
+  const fmt = (n) => `LKR ${Number(n || 0).toFixed(2)}`;
 
   return (
     <div ref={ref} className="receipt-print hidden print:block bg-white p-4" style={{ width: '80mm', fontFamily: "'Courier New', monospace", fontSize: '12px' }}>
@@ -66,9 +66,9 @@ const ReceiptPrinter = forwardRef(({ sale }, ref) => {
             <span>Discount</span><span>- {fmt(sale.discount)}</span>
           </div>
         )}
-        {sale.tax > 0 && (
+        {sale.taxAmount > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <span>Tax</span><span>{fmt(sale.tax)}</span>
+            <span>Tax</span><span>{fmt(sale.taxAmount)}</span>
           </div>
         )}
         <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 'bold', fontSize: '14px', marginTop: '4px', borderTop: '1px solid #000', paddingTop: '4px' }}>

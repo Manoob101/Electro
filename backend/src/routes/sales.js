@@ -134,7 +134,7 @@ router.post(
             userId: req.user.id,
             subtotal: parseFloat(subtotal.toFixed(2)),
             discount: parseFloat(discount),
-            tax: parseFloat(tax),
+            taxAmount: parseFloat(tax),
             total: parseFloat(total.toFixed(2)),
             paymentMethod,
             paymentStatus,
@@ -172,8 +172,7 @@ router.post(
               productId: item.productId,
               type: 'out',
               quantity: item.quantity,
-              reference: invoiceNo,
-              notes: `Sale: ${invoiceNo}`,
+              reason: `Sale: ${invoiceNo}`,
             },
           });
 
@@ -186,6 +185,7 @@ router.post(
                 saleItemId: saleItem.id,
                 productId: item.productId,
                 customerId: customerId || null,
+                saleId: newSale.id,
                 serialNumber: item.serialNumber || null,
                 invoiceNo,
                 startDate: now,

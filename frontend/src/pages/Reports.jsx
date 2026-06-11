@@ -62,7 +62,7 @@ export default function Reports() {
     a.click();
   };
 
-  const fmt = (n) => `₹${Number(n || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
+  const fmt = (n) => `LKR ${Number(n || 0).toLocaleString('en-LK', { minimumFractionDigits: 2 })}`;
 
   return (
     <div className="space-y-5">
@@ -114,8 +114,8 @@ export default function Reports() {
             <BarChart data={chartData} margin={{ left: -10, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
               <XAxis dataKey="date" tickFormatter={(v) => format(new Date(v + 'T00:00:00'), 'dd')} tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `₹${v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v}`} />
-              <Tooltip formatter={(v) => [`₹${Number(v).toLocaleString('en-IN')}`, 'Revenue']} labelFormatter={(l) => format(new Date(l + 'T00:00:00'), 'dd MMM')} />
+              <YAxis tick={{ fontSize: 11 }} tickFormatter={(v) => `LKR ${v >= 1000 ? (v / 1000).toFixed(0) + 'k' : v}`} />
+              <Tooltip formatter={(v) => [`LKR ${Number(v).toLocaleString('en-LK')}`, 'Revenue']} labelFormatter={(l) => format(new Date(l + 'T00:00:00'), 'dd MMM')} />
               <Bar dataKey="total" fill="#4f46e5" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>

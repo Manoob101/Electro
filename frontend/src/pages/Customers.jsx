@@ -54,7 +54,7 @@ export default function Customers() {
     } catch (err) { toast.error(err.response?.data?.error || 'Save failed'); }
   };
 
-  const fmt = (n) => `₹${Number(n || 0).toFixed(2)}`;
+  const fmt = (n) => `LKR ${Number(n || 0).toFixed(2)}`;
 
   return (
     <div className="space-y-4">
